@@ -16,8 +16,10 @@ module Xliff
 
         def sort
             newt = Nokogiri::XML::NodeSet.new(@transunitscoll.document, @transunitscoll.to_ary.sort_by{|unit| Xliff::TransUnit.new(unit, @namespace_xliff)})
-            @transunitscoll.first.parent.children = newt
-            @transunitscoll = newt
+            if @transunitscoll.size > 0
+                @transunitscoll.first.parent.children = newt
+                @transunitscoll = newt
+            end
         end
 
         def last
@@ -75,6 +77,10 @@ module Xliff
             @elem.xpath(".//#{@namespace}target").first.content
         end
 
+        def resname
+            @elem['resname']
+        end
+
         def target=(tgt)
             @elem.xpath(".//#{@namespace}target").first.content = tgt
         end
@@ -87,6 +93,9 @@ module Xliff
             @elem['id'] = uid.to_s
         end
 
+        def resname=(x)
+            @elem['resname'] = x.to_s
+        end
 
         def <=>(b)
             self.unitid.to_i <=> b.unitid.to_i

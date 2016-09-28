@@ -152,25 +152,27 @@ module Xliff
             end
         end
 
-        # Save current Xliff Document to file pathname. If file pathname given not finished by '.xlf' (the standard extension for xliff files), the method add it.
-        def save_to(filepathname)
+        def to_xliff
             unless @doc.errors.empty?
-                throw Exception.new('Can\'t save mal formed doc ' + @doc.errors.join("\n"))
+                throw Exception.new('Can\'t output/save malformed doc ' + @doc.errors.join("\n"))
             end
-
-            filepathname +='.xlf' if /\.xlf$/ !~ filepathname
-
             @doc.xpath("/#{@namespace_xliff}xliff/#{@namespace_xliff}file").first['date'] = Time.new.getutc.strftime('%FT%TZ')
-            @doc.xpath("/#{@namespace_xliff}xliff/#{@namespace_xliff}file").first['product-name'] = File.basename(filepathname,'.xlf')
             self.transunits.sort
-            File.open(filepathname,'w') do |file|
-                file << (@doc.to_xml({:encoding => 'UTF-8', :indent => 5}).gsub(
+            @doc.to_xml({:encoding => 'UTF-8', :indent => 5}).gsub(
                                                 '<trans-unit ',"\n        <trans-unit ").gsub(
                                                 '<source',"\n          <source").gsub(
                                                 '<target',"\n          <target").gsub(
                                                 '<note',"\n          <note").gsub(
                                                 '</trans-unit>',"\n        </trans-unit>\n").gsub(/\n?<\/body>/,"\n    </body>").gsub(/\n\s*\n/,"\n")
-                        )
+        end
+
+        # Save current Xliff Document to file pathname. If file pathname given not finished by '.xlf' (the standard extension for xliff files), the method add it.
+        def save_to(filepathname)
+            filepathname +='.xlf' if /\.xlf$/ !~ filepathname
+
+            @doc.xpath("/#{@namespace_xliff}xliff/#{@namespace_xliff}file").first['product-name'] = File.basename(filepathname,'.xlf')
+            File.open(filepathname,'w') do |file|
+                file << to_xliff
             end
             @filepathname = filepathname
         end

@@ -12,7 +12,7 @@ module Xliff
         XLIFF_NS = 'urn:oasis:names:tc:xliff:document:1.2'
 
         # Xliff::Document constructor.
-        # To open an existant xliff document, you can pass a filepathname, with or not a 2nd parameter to inform some options for create new unit etc.
+        # To open an existant xliff document, you can pass an XML string, or a filepathname, with or not a 2nd parameter to inform some options for create new unit etc.
         # To create a new one, you can give a hash option with
         # * :target_lang
         # * :source_lang
@@ -25,7 +25,8 @@ module Xliff
         def initialize(filepathname = nil, options_create = nil)
             @namespace_xliff = nil
             if filepathname && filepathname.is_a?(String)
-                @doc = Nokogiri::XML(File.open(filepathname))
+                xml_or_file = filepathname =~ /<\?xml/i ? filepathname : File.open(filepathname)
+                @doc = Nokogiri::XML(xml_or_file)
                 unless @doc.errors.empty?
                     @doc.errors.each do |err|
                         p err

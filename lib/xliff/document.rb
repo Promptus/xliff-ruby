@@ -18,6 +18,8 @@ module Xliff
         # * :source_lang
         # * :datatype
         # * :original
+        # * :product_name (for product-name in the XLIFF)
+        # * :product_version (for product-version in the XLIFF)
         # * :filepathname (to save the document later but not mandatory see method #save_to )
         # * :prefix_id to indicate a prefix setted on new unit created
         def initialize(filepathname = nil, options_create = nil)
@@ -69,6 +71,8 @@ module Xliff
                 self.target_lang = options_create[:target_lang]
                 @doc.xpath("/#{@namespace_xliff}xliff/#{@namespace_xliff}file").first['datatype'] = options_create[:datatype] if options_create[:datatype]
                 @doc.xpath("/#{@namespace_xliff}xliff/#{@namespace_xliff}file").first['original'] = options_create[:original] if options_create[:original]
+                @doc.xpath("/#{@namespace_xliff}xliff/#{@namespace_xliff}file").first['product-name'] = options_create[:product_name] if options_create[:product_name]
+                @doc.xpath("/#{@namespace_xliff}xliff/#{@namespace_xliff}file").first['product-version'] = options_create[:product_version] if options_create[:product_version]
                 @filepathname = options_create[:filepathname] if options_create[:filepathname]
 
             end

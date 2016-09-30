@@ -22,18 +22,20 @@ module Xliff
         # * :product_version (for product-version in the XLIFF)
         # * :filepathname (to save the document later but not mandatory see method #save_to )
         # * :prefix_id to indicate a prefix setted on new unit created
+        # * :logger - a Logger instance which responds to #debug and #error, defaults to STDOUT
         def initialize(filepathname = nil, options_create = nil)
+            @logger = ((options_create and options_create[:logger]) || Logger.new(STDOUT))
             @namespace_xliff = nil
             if filepathname && filepathname.is_a?(String)
                 xml_or_file = filepathname =~ /<\?xml/i ? filepathname : File.open(filepathname)
                 @doc = Nokogiri::XML(xml_or_file)
                 unless @doc.errors.empty?
                     @doc.errors.each do |err|
-                        p err
-                        p err.line
-                        p err.column
-                        p err.str1
-                        p err.str2
+                        @logger.error err
+                        @logger.error err.line
+                        @logger.error err.column
+                        @logger.error err.str1
+                        @logger.error err.str2
                     end
                     throw Exception.new('XML parsing error in file "'+filepathname+'" : '+@doc.errors.join("\n"))
                 end
@@ -47,6 +49,7 @@ module Xliff
                     options_create = filepathname
                     filepathname = nil
                 end
+                @logger = ((options_create and options_create[:logger]) || Logger.new(STDOUT))
                 builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
                     xml.doc.create_internal_subset(
                         'xliff',
@@ -124,13 +127,13 @@ module Xliff
 
             error_count = 0
             xsd.validate(@doc).each do |error|
-                puts error.message
+                @logger.error error.message
                 error_count += 1
             end
             if error_count > 0
-                p "#{error_count} error(s) found"
+                @logger.error "#{error_count} error(s) found"
             else
-                p "No Error. The Xliff is valid in #{type.to_s} mode"
+                @logger.debug "No Error. The Xliff is valid in #{type.to_s} mode"
             end
             return (error_count == 0)
         end

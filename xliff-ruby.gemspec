@@ -1,5 +1,4 @@
-$:.push File.dirname(__FILE__)+'/lib/'
-require "xliff"
+require File.dirname(__FILE__) + '/lib/xliff/version'
 
 Gem::Specification.new do |s|
     s.name        = "xliff"
